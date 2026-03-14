@@ -51,7 +51,9 @@ export abstract class DependencyContainer implements IDependencyContainer {
             return this.instances.get(key) as T;
         }
 
-        return this.resolveTransient(key, binding);
+        const instance = this.resolveTransient(key, binding);
+        this.instances.set(key, instance);
+        return instance;
     }
 
     protected resolveTransient<T>(key: Token<T>, binding: Binding<T>): T {
@@ -71,9 +73,6 @@ export abstract class DependencyContainer implements IDependencyContainer {
     }
 
     close(): void {
-        if (this.parent) {
-            this.parent.close();
-        }
         this.instances.clear();
     }
 }
