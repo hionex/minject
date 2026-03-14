@@ -55,9 +55,7 @@ export abstract class DependencyContainer implements IDependencyContainer {
     }
 
     protected resolveTransient<T>(key: Token<T>, binding: Binding<T>): T {
-        const instance = this._createInstance(binding);
-        this.instances.set(key, instance);
-        return instance;
+        return this._createInstance(binding);
     }
 
     private _createInstance<T>(binding: Binding<T>): T {
