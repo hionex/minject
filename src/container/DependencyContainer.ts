@@ -47,11 +47,16 @@ export abstract class DependencyContainer implements IDependencyContainer {
     }
 
     protected resolveScoped<T>(key: Token<T>, binding: Binding<T>): T {
+        // Only cache Scoped lifetimes, not Transient
+        if (binding.lifetime !== Lifetime.Scoped) {
+            return this._createInstance(binding);
+        }
+
         if (this.instances.has(key)) {
             return this.instances.get(key) as T;
         }
 
-        const instance = this.resolveTransient(key, binding);
+        const instance = this._createInstance(binding);
         this.instances.set(key, instance);
         return instance;
     }
