@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { ContainerBuilder } from './ContainerBuilder.js';
-import { IDependencyContainer } from './IDependencyContainer.js';
+import { ContainerBuilder } from '../src/container/ContainerBuilder.js';
+import { IDependencyContainer } from '../src/container/IDependencyContainer.js';
 
 // Test fixtures
 class Counter {
