@@ -31,6 +31,32 @@ export abstract class DependencyContainer implements IDependencyContainer {
         }
     }
 
+    resolveFactory<T>(key: Token<T>): () => T {
+        const binding = this.bindings.get(key);
+        if (!binding) {
+            throw new Error(`No binding found for key ${key.toString()}`);
+        }
+
+        // Capture the container for factory resolution
+        const container = this;
+
+        return (): T => {
+            if (binding.lifetime === Lifetime.Singleton) {
+                // Singleton: resolve from root to ensure shared instance
+                const root = container.getRoot();
+                const rootBinding = root.bindings.get(key);
+                if (rootBinding) {
+                    return root.resolveScoped(key, rootBinding);
+                }
+            } else if (binding.lifetime === Lifetime.Scoped) {
+                // Scoped: resolve from current container to respect scope
+                return container.resolveScoped(key, binding);
+            }
+            // Transient: always create new
+            return container.resolveTransient(key, binding);
+        };
+    }
+
     protected isRoot(): boolean {
         return this.parent === null;
     }
