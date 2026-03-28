@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest';
-import { ContainerBuilder } from '../../src/container/ContainerBuilder.js';
-import { IDependencyContainer } from '../../src/container/IDependencyContainer.js';
+import { ContainerBuilder } from '@/container/ContainerBuilder.js';
+import { IDependencyContainer } from '@/container/IDependencyContainer.js';
+import { describe, expect, it } from 'vitest';
 
 // Interface definitions
 interface ILogger {

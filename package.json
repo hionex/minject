@@ -6,7 +6,8 @@
     "types": "dist/index.d.ts",
     "type": "module",
     "scripts": {
-        "build": "tsc",
+        "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+        "dev": "tsc -p tsconfig.dev.json && tsc-alias -p tsconfig.dev.json",
         "test": "vitest",
         "format": "prettier --write ."
     },
@@ -26,6 +27,7 @@
         "@types/node": "^20.11.0",
         "prettier": "^3.8.1",
         "ts-node": "^10.9.2",
+        "tsc-alias": "^1.8.16",
         "typescript": "^5.3.3",
         "vitest": "^1.2.0"
     }

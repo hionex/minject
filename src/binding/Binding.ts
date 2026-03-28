@@ -1,5 +1,5 @@
-import { IDependencyContainer } from '../container/IDependencyContainer.js';
-import { Lifetime } from './Lifetime.js';
+import { Lifetime } from '@/binding/Lifetime.js';
+import { IDependencyContainer } from '@/container/IDependencyContainer.js';
 
 export type Token<T = any> = string | symbol | Class<T>;
 

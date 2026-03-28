@@ -1,5 +1,5 @@
-import { describe, it, expectTypeOf } from 'vitest';
-import { ContainerBuilder } from '../../src/container/ContainerBuilder.js';
+import { ContainerBuilder } from '@/container/ContainerBuilder.js';
+import { describe, expectTypeOf, it } from 'vitest';
 
 // Type safety test fixtures
 class UserService {

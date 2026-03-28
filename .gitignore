@@ -1,8 +1,25 @@
+# dependencies
 node_modules
+
+# build output
 build
 dist
-package-lock.json
+tsconfig*.tsbuildinfo
+
+# environment
 .env
 .env.local
 .env.development.local
+
+# editor
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+
+# os
+.DS_Store
+Thumbs.db
+
+# misc
+package-lock.json
 GEMINI.md

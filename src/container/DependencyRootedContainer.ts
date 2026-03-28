@@ -1,9 +1,7 @@
-import { Binding } from '../binding/Binding.js';
-import { Lifetime } from '../binding/Lifetime.js';
-import { DependencyContainer } from './DependencyContainer.js';
-import { DependencyScopedContainer } from './DependencyScopedContainer.js';
-import { IDependencyContainer } from './IDependencyContainer.js';
-import { Token } from '../binding/Binding.js';
+import { Binding, Token } from '@/binding/Binding.js';
+import { DependencyContainer } from '@/container/DependencyContainer.js';
+import { DependencyScopedContainer } from '@/container/DependencyScopedContainer.js';
+import { IDependencyContainer } from '@/container/IDependencyContainer.js';
 
 export class DependencyRootedContainer extends DependencyContainer {
     constructor(bindings: Map<Token<any>, Binding<any>>) {

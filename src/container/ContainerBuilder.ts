@@ -1,9 +1,8 @@
-import { Binding } from '../binding/Binding.js';
-import { BindingBuilder } from '../binding/BindingBuilder.js';
-import { Lifetime } from '../binding/Lifetime.js';
-import { IDependencyContainer } from './IDependencyContainer.js';
-import { DependencyRootedContainer } from './DependencyRootedContainer.js';
-import { Token } from '../binding/Binding.js';
+import { Binding, Token } from '@/binding/Binding.js';
+import { BindingBuilder } from '@/binding/BindingBuilder.js';
+import { Lifetime } from '@/binding/Lifetime.js';
+import { DependencyRootedContainer } from '@/container/DependencyRootedContainer.js';
+import { IDependencyContainer } from '@/container/IDependencyContainer.js';
 
 export type RegisterAction<T> = (builder: BindingBuilder<T>) => void;
 
@@ -49,14 +48,17 @@ export class ContainerBuilder {
             if (binding.factory) {
                 // Factory captures the container - we can't easily introspect it
                 // So we warn about the pattern: Scoped/Singleton + factory with dependencies
-                if (binding.lifetime === Lifetime.Scoped || binding.lifetime === Lifetime.Singleton) {
+                if (
+                    binding.lifetime === Lifetime.Scoped ||
+                    binding.lifetime === Lifetime.Singleton
+                ) {
                     // This is a potential issue: factory resolves dependencies at construction time
                     // If those dependencies are Transient, they become "captive" - held by the cached instance
                     console.warn(
                         `[minject] Potential captive dependency detected:` +
-                        ` ${key.toString()} (${binding.lifetime}) uses a factory ` +
-                        `that may resolve Transient dependencies. ` +
-                        `Use resolveFactory() for truly transient dependencies in Scoped/Singleton services.`
+                            ` ${key.toString()} (${binding.lifetime}) uses a factory ` +
+                            `that may resolve Transient dependencies. ` +
+                            `Use resolveFactory() for truly transient dependencies in Scoped/Singleton services.`
                     );
                 }
             }

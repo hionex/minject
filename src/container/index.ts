@@ -1,3 +1,3 @@
-export * from './ContainerBuilder.js';
-export * from './IDependencyContainer.js';
-export * from './DependencyRootedContainer.js';
+export * from '@/container/ContainerBuilder.js';
+export * from '@/container/DependencyRootedContainer.js';
+export * from '@/container/IDependencyContainer.js';

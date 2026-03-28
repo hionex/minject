@@ -1,7 +1,6 @@
-import { Binding } from '../binding/Binding.js';
-import { Lifetime } from '../binding/Lifetime.js';
-import { IDependencyContainer } from './IDependencyContainer.js';
-import { Token } from '../binding/Binding.js';
+import { Binding, Token } from '@/binding/Binding.js';
+import { Lifetime } from '@/binding/Lifetime.js';
+import { IDependencyContainer } from '@/container/IDependencyContainer.js';
 
 export abstract class DependencyContainer implements IDependencyContainer {
     protected instances: Map<Token<any>, any> = new Map();

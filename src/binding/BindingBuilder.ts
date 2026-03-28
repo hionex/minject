@@ -1,5 +1,5 @@
-import { Binding, Class, Factory, Token } from './Binding.js';
-import { Lifetime } from './Lifetime.js';
+import { Binding, Class, Factory, Token } from '@/binding/Binding.js';
+import { Lifetime } from '@/binding/Lifetime.js';
 
 export class BindingBuilder<T> {
     private _key!: Token<T>;
