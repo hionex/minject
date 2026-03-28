@@ -1,7 +1,7 @@
 # minject Development Roadmap
 
 > **Version:** 1.0.0 → 2.0.0  
-> **Last Updated:** 2026-03-25  
+> **Last Updated:** 2026-03-28  
 > **Status:** Active Development
 
 ---
@@ -26,10 +26,18 @@
 ### 0.2 Critical Bug Fixes
 
 - [x] **Fixed:** Transient caching bug in `resolveScoped()`
+- [x] **Fixed:** Singleton caching bug where singletons were not shared across scopes
 - [x] Test infrastructure (Vitest)
 - [x] Comprehensive test coverage for lifetime behavior
 
-**Merged:** PR #3 - "fix: prevent transient services from being cached in scoped containers"
+### 0.3 Core Stability & Refinement
+
+- [x] **Feature:** Fully type-safe `resolve()` with automatic inference.
+- [x] **Feature:** `resolveFactory()` for manual/lazy dependency resolution.
+- [x] **Architecture:** Captive dependency detection & warning system.
+- [x] **Architecture:** Path mapping support (@/ absolute imports).
+- [x] **Testing:** Decoupled tests from `src/` to root `tests/` directory.
+- [x] **Testing:** Interface-based resolution test suite (SOLID principles).
 
 ---
 
@@ -40,7 +48,7 @@
 ### 1.1 Async Resolution Support
 
 **Priority:** HIGH  
-**Estimated Effort:** 2-3 days
+**Estimated Effort:** 3 days
 
 - [ ] Add `resolveAsync<T>(key: Token<T>): Promise<T>` method
 - [ ] Add async factory support: `toFactory(async (c) => ...)`
@@ -194,13 +202,13 @@ class Service {
 ### 3.1 Unit Test Coverage
 
 **Priority:** HIGH  
-**Current:** ~60%  
+**Current:** ~75%  
 **Target:** 95%+
 
-- [ ] ContainerBuilder tests (edge cases, validation)
-- [ ] Scoped container lifecycle tests
-- [ ] Factory injection tests with complex graphs
-- [ ] Error handling tests for all failure modes
+- [x] ContainerBuilder tests (edge cases, validation)
+- [x] Scoped container lifecycle tests
+- [x] Factory injection tests with complex graphs
+- [x] Error handling tests for all failure modes
 - [ ] Mock/fake service testing utilities
 
 ### 3.2 Integration Tests
@@ -235,7 +243,7 @@ class Service {
 
 **Example:**
 
-```
+```zsh
 BindingNotFoundError: No binding found for token 'DatabaseService'
   Resolution path: AppController -> UserService -> [DatabaseService]
   Suggestion: Did you forget to register DatabaseService?
@@ -253,7 +261,7 @@ BindingNotFoundError: No binding found for token 'DatabaseService'
 
 **Priority:** MEDIUM
 
-- [ ] Validate all bindings at build time
+- [x] Validate all bindings at build time (captive dependency check)
 - [ ] Check for missing dependencies
 - [ ] Warn on duplicate registrations
 - [ ] Validate lifetime compatibility in dependency chains
@@ -295,22 +303,22 @@ BindingNotFoundError: No binding found for token 'DatabaseService'
 | Phase     | Duration | Target Date | Status     |
 | --------- | -------- | ----------- | ---------- |
 | Phase 0   | Complete | 2026-03-25  | ✅ Done    |
-| Phase 1.1 | 3 days   | 2026-03-28  | 🚧 Next    |
-| Phase 1.2 | 2 days   | 2026-03-30  | ⏳ Planned |
-| Phase 1.3 | 2 days   | 2026-04-01  | ⏳ Planned |
-| Phase 2.x | 2 weeks  | 2026-04-15  | ⏳ Future  |
-| Phase 3.x | 1 week   | 2026-04-22  | ⏳ Future  |
-| Phase 4.x | 1 week   | 2026-04-29  | ⏳ Future  |
-| Phase 5.x | 1 week   | 2026-05-06  | ⏳ Future  |
+| Phase 1.1 | 3 days   | 2026-03-31  | 🚧 Next    |
+| Phase 1.2 | 2 days   | 2026-04-02  | ⏳ Planned |
+| Phase 1.3 | 2 days   | 2026-04-04  | ⏳ Planned |
+| Phase 2.x | 2 weeks  | 2026-04-18  | ⏳ Future  |
+| Phase 3.x | 1 week   | 2026-04-25  | ⏳ Future  |
+| Phase 4.x | 1 week   | 2026-05-02  | ⏳ Future  |
+| Phase 5.x | 1 week   | 2026-05-09  | ⏳ Future  |
 
-**v1.0.0 Release Target:** 2026-04-01 (Phase 1 complete)  
-**v2.0.0 Release Target:** 2026-05-06 (Full feature set)
+**v1.0.0 Release Target:** 2026-04-04 (Phase 1 complete)  
+**v2.0.0 Release Target:** 2026-05-09 (Full feature set)
 
 ---
 
 ## 🎯 Current Sprint: Phase 1.1 (Async Resolution)
 
-### Tasks:
+### Tasks
 
 1. **Design Async Interface** (Day 1)
     - Define `resolveAsync()` signature
@@ -338,7 +346,7 @@ BindingNotFoundError: No binding found for token 'DatabaseService'
     - Add async section to API docs
     - Create async migration guide
 
-### Deliverables:
+### Deliverables
 
 - [ ] Working `resolveAsync()` implementation
 - [ ] Async factory binding support
@@ -350,7 +358,7 @@ BindingNotFoundError: No binding found for token 'DatabaseService'
 
 ## 📝 Notes & Decisions
 
-### Design Decisions:
+### Design Decisions
 
 1. **Explicit vs Implicit Async:**
     - Decision: Keep `resolve()` sync, add `resolveAsync()` for async
@@ -366,7 +374,7 @@ BindingNotFoundError: No binding found for token 'DatabaseService'
     - Decision: Throw error, don't try to auto-resolve
     - Rationale: Circular deps are design smells; explicit errors force fixes
 
-### Technical Debt:
+### Technical Debt
 
 - [ ] Refactor `resolveScoped()` to use strategy pattern for different lifetimes
 - [ ] Consider extracting binding validation into separate class
@@ -376,9 +384,11 @@ BindingNotFoundError: No binding found for token 'DatabaseService'
 
 ## 🔗 Resources
 
-- **Repository:** https://github.com/hiep20012003/minject
-- **PR #3 (Merged):** https://github.com/hiep20012003/minject/pull/3
-- **Issues:** https://github.com/hiep20012003/minject/issues
+- **Repository:** <https://github.com/hiep20012003/minject>
+- **PR #3 (Merged):** <https://github.com/hiep20012003/minject/pull/3>
+- **PR #7 (Merged):** <https://github.com/hiep20012003/minject/pull/7> (Singleton caching fix)
+- **PR #8 (Merged):** <https://github.com/hiep20012003/minject/pull/8> (resolveFactory & captive deps)
+- **Issues:** <https://github.com/hiep20012003/minject/issues>
 - **Wiki:** (to be created)
 
 ---
