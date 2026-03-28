@@ -1,4 +1,4 @@
-import { ContainerBuilder } from "./container/ContainerBuilder.js";
+import { ContainerBuilder } from './container/ContainerBuilder.js';
 
 class ServiceA {
     constructor(private serviceB: ServiceB) {}
@@ -10,7 +10,7 @@ class ServiceA {
 class ServiceB {
     constructor() {}
     hello() {
-        console.log("Hello World!");
+        console.log('Hello World!');
     }
 }
 
@@ -18,16 +18,13 @@ function main() {
     const builder = new ContainerBuilder();
 
     builder
-        .register((builder) => {
+        .register(builder => {
             builder.bind(ServiceB).to(ServiceB).asSingleton();
         })
-        .register((builder) => {
+        .register(builder => {
             builder
                 .bind(ServiceA)
-                .toFactory(
-                    (container) =>
-                        new ServiceA(container.resolve<ServiceB>(ServiceB)),
-                )
+                .toFactory(container => new ServiceA(container.resolve<ServiceB>(ServiceB)))
                 .asTransient();
         });
 

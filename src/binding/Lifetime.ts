@@ -1,5 +1,5 @@
 export enum Lifetime {
-    Singleton = "singleton",
-    Transient = "transient",
-    Scoped = "scoped",
+    Singleton = 'singleton',
+    Transient = 'transient',
+    Scoped = 'scoped',
 }

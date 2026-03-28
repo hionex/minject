@@ -1,14 +1,14 @@
-import { Binding } from "../binding/Binding.js";
-import { Lifetime } from "../binding/Lifetime.js";
-import { IDependencyContainer } from "./IDependencyContainer.js";
-import { Token } from "../binding/Binding.js";
+import { Binding } from '../binding/Binding.js';
+import { Lifetime } from '../binding/Lifetime.js';
+import { IDependencyContainer } from './IDependencyContainer.js';
+import { Token } from '../binding/Binding.js';
 
 export abstract class DependencyContainer implements IDependencyContainer {
     protected instances: Map<Token<any>, any> = new Map();
 
     constructor(
         protected bindings: Map<Token<any>, Binding<any>>,
-        protected parent: DependencyContainer | null = null,
+        protected parent: DependencyContainer | null = null
     ) {}
 
     abstract createScope(): IDependencyContainer;
@@ -27,7 +27,7 @@ export abstract class DependencyContainer implements IDependencyContainer {
             case Lifetime.Transient:
                 return this.resolveTransient(key, binding);
             default:
-                throw new Error("Invalid lifetime.");
+                throw new Error('Invalid lifetime.');
         }
     }
 
@@ -75,7 +75,7 @@ export abstract class DependencyContainer implements IDependencyContainer {
             return new binding.implementation();
         }
 
-        throw new Error("Invalid binding.");
+        throw new Error('Invalid binding.');
     }
 
     close(): void {

@@ -15,6 +15,7 @@
 ## ✅ Phase 0: Foundation (COMPLETED)
 
 ### 0.1 Core Architecture
+
 - [x] Container hierarchy (Root → Scoped containers)
 - [x] Fluent BindingBuilder DSL
 - [x] Three lifetimes: Singleton, Scoped, Transient
@@ -23,6 +24,7 @@
 - [x] TypeScript strict mode compliance
 
 ### 0.2 Critical Bug Fixes
+
 - [x] **Fixed:** Transient caching bug in `resolveScoped()`
 - [x] Test infrastructure (Vitest)
 - [x] Comprehensive test coverage for lifetime behavior
@@ -36,6 +38,7 @@
 **Goal:** Complete the essential DI features required for production use.
 
 ### 1.1 Async Resolution Support
+
 **Priority:** HIGH  
 **Estimated Effort:** 2-3 days
 
@@ -45,6 +48,7 @@
 - [ ] Ensure proper error propagation for async failures
 
 **Implementation Notes:**
+
 ```typescript
 // New interface method
 resolveAsync<T>(key: Token<T>): Promise<T>;
@@ -61,12 +65,14 @@ builder.register((b) =>
 ```
 
 **Files to Modify:**
+
 - `src/container/IDependencyContainer.ts` - Add async interface
 - `src/container/DependencyContainer.ts` - Implement async resolution
 - `src/binding/Binding.ts` - Support async factories
 - `src/binding/BindingBuilder.ts` - Add async factory builder
 
 ### 1.2 Circular Dependency Detection
+
 **Priority:** HIGH  
 **Estimated Effort:** 1-2 days
 
@@ -75,16 +81,19 @@ builder.register((b) =>
 - [ ] Throw descriptive error with dependency chain
 
 **Implementation Notes:**
+
 ```typescript
 // Error format
-CircularDependencyError: "Circular dependency detected: A -> B -> C -> A"
+CircularDependencyError: 'Circular dependency detected: A -> B -> C -> A';
 ```
 
 **Files to Modify:**
+
 - `src/container/DependencyContainer.ts` - Add resolution tracking
 - `src/errors/CircularDependencyError.ts` - New error class
 
 ### 1.3 Multiple Service Registration
+
 **Priority:** MEDIUM  
 **Estimated Effort:** 2 days
 
@@ -93,20 +102,18 @@ CircularDependencyError: "Circular dependency detected: A -> B -> C -> A"
 - [ ] Maintain registration order for deterministic resolution
 
 **Implementation Notes:**
+
 ```typescript
 // Register multiple handlers
-builder.register((b) =>
-  b.bind(EventHandler).to(LoggingHandler).asSingleton()
-);
-builder.register((b) =>
-  b.bind(EventHandler).to(MetricsHandler).asSingleton()
-);
+builder.register(b => b.bind(EventHandler).to(LoggingHandler).asSingleton());
+builder.register(b => b.bind(EventHandler).to(MetricsHandler).asSingleton());
 
 // Resolve all
 const handlers = container.resolveAll(EventHandler); // [LoggingHandler, MetricsHandler]
 ```
 
 **Files to Modify:**
+
 - `src/container/ContainerBuilder.ts` - Support multiple bindings per token
 - `src/container/DependencyContainer.ts` - Add `resolveAll()` method
 - `src/binding/BindingRegistry.ts` - New class to manage multi-bindings
@@ -118,6 +125,7 @@ const handlers = container.resolveAll(EventHandler); // [LoggingHandler, Metrics
 **Goal:** Add optional decorator-based injection for reduced boilerplate.
 
 ### 2.1 Metadata Reflection Setup
+
 **Priority:** MEDIUM  
 **Estimated Effort:** 1-2 days
 
@@ -126,10 +134,12 @@ const handlers = container.resolveAll(EventHandler); // [LoggingHandler, Metrics
 - [ ] Create metadata keys for injection tokens
 
 **Files to Modify:**
+
 - `tsconfig.json` - Enable decorator metadata
 - `src/metadata/InjectionMetadata.ts` - Metadata management utilities
 
 ### 2.2 @Injectable Decorator
+
 **Priority:** MEDIUM  
 **Estimated Effort:** 2-3 days
 
@@ -138,14 +148,16 @@ const handlers = container.resolveAll(EventHandler); // [LoggingHandler, Metrics
 - [ ] Support default lifetime configuration
 
 **Usage:**
+
 ```typescript
 @Injectable({ lifetime: Lifetime.Singleton })
 class DatabaseService {
-  constructor(private logger: Logger) {}
+    constructor(private logger: Logger) {}
 }
 ```
 
 ### 2.3 @Inject Decorator
+
 **Priority:** MEDIUM  
 **Estimated Effort:** 2-3 days
 
@@ -154,16 +166,18 @@ class DatabaseService {
 - [ ] Handle optional dependencies `@InjectOptional`
 
 **Usage:**
+
 ```typescript
 class Service {
-  constructor(
-    @Inject(CONFIG_TOKEN) private config: Config,
-    @InjectOptional(LOGGER_TOKEN) private logger?: Logger
-  ) {}
+    constructor(
+        @Inject(CONFIG_TOKEN) private config: Config,
+        @InjectOptional(LOGGER_TOKEN) private logger?: Logger
+    ) {}
 }
 ```
 
 ### 2.4 Auto-Registration Container
+
 **Priority:** LOW  
 **Estimated Effort:** 2 days
 
@@ -178,6 +192,7 @@ class Service {
 **Goal:** Achieve production-grade test coverage and reliability.
 
 ### 3.1 Unit Test Coverage
+
 **Priority:** HIGH  
 **Current:** ~60%  
 **Target:** 95%+
@@ -189,6 +204,7 @@ class Service {
 - [ ] Mock/fake service testing utilities
 
 ### 3.2 Integration Tests
+
 **Priority:** MEDIUM
 
 - [ ] Express.js middleware integration
@@ -197,6 +213,7 @@ class Service {
 - [ ] Performance benchmarks
 
 ### 3.3 E2E Test Scenarios
+
 **Priority:** MEDIUM
 
 - [ ] Real-world application test (sample REST API)
@@ -208,6 +225,7 @@ class Service {
 ## 📦 Phase 4: Developer Experience
 
 ### 4.1 Better Error Messages
+
 **Priority:** MEDIUM
 
 - [ ] Custom error classes for each failure mode
@@ -216,6 +234,7 @@ class Service {
 - [ ] Source map support for better stack traces
 
 **Example:**
+
 ```
 BindingNotFoundError: No binding found for token 'DatabaseService'
   Resolution path: AppController -> UserService -> [DatabaseService]
@@ -223,6 +242,7 @@ BindingNotFoundError: No binding found for token 'DatabaseService'
 ```
 
 ### 4.2 Container Inspection
+
 **Priority:** LOW
 
 - [ ] `container.getBindings(): BindingInfo[]` - List all registrations
@@ -230,6 +250,7 @@ BindingNotFoundError: No binding found for token 'DatabaseService'
 - [ ] Debug visualization of dependency graph
 
 ### 4.3 Configuration Validation
+
 **Priority:** MEDIUM
 
 - [ ] Validate all bindings at build time
@@ -242,6 +263,7 @@ BindingNotFoundError: No binding found for token 'DatabaseService'
 ## 🔒 Phase 5: Production Readiness
 
 ### 5.1 Performance Optimization
+
 **Priority:** MEDIUM
 
 - [ ] Benchmark resolution performance
@@ -250,6 +272,7 @@ BindingNotFoundError: No binding found for token 'DatabaseService'
 - [ ] Memory usage profiling
 
 ### 5.2 Security Hardening
+
 **Priority:** MEDIUM
 
 - [ ] Prevent prototype pollution in token lookups
@@ -257,6 +280,7 @@ BindingNotFoundError: No binding found for token 'DatabaseService'
 - [ ] Add `freeze()` method to prevent runtime modifications
 
 ### 5.3 Documentation
+
 **Priority:** HIGH
 
 - [ ] API Reference (TypeDoc generated)
@@ -268,16 +292,16 @@ BindingNotFoundError: No binding found for token 'DatabaseService'
 
 ## 📊 Implementation Timeline
 
-| Phase | Duration | Target Date | Status |
-|-------|----------|-------------|--------|
-| Phase 0 | Complete | 2026-03-25 | ✅ Done |
-| Phase 1.1 | 3 days | 2026-03-28 | 🚧 Next |
-| Phase 1.2 | 2 days | 2026-03-30 | ⏳ Planned |
-| Phase 1.3 | 2 days | 2026-04-01 | ⏳ Planned |
-| Phase 2.x | 2 weeks | 2026-04-15 | ⏳ Future |
-| Phase 3.x | 1 week | 2026-04-22 | ⏳ Future |
-| Phase 4.x | 1 week | 2026-04-29 | ⏳ Future |
-| Phase 5.x | 1 week | 2026-05-06 | ⏳ Future |
+| Phase     | Duration | Target Date | Status     |
+| --------- | -------- | ----------- | ---------- |
+| Phase 0   | Complete | 2026-03-25  | ✅ Done    |
+| Phase 1.1 | 3 days   | 2026-03-28  | 🚧 Next    |
+| Phase 1.2 | 2 days   | 2026-03-30  | ⏳ Planned |
+| Phase 1.3 | 2 days   | 2026-04-01  | ⏳ Planned |
+| Phase 2.x | 2 weeks  | 2026-04-15  | ⏳ Future  |
+| Phase 3.x | 1 week   | 2026-04-22  | ⏳ Future  |
+| Phase 4.x | 1 week   | 2026-04-29  | ⏳ Future  |
+| Phase 5.x | 1 week   | 2026-05-06  | ⏳ Future  |
 
 **v1.0.0 Release Target:** 2026-04-01 (Phase 1 complete)  
 **v2.0.0 Release Target:** 2026-05-06 (Full feature set)
@@ -289,32 +313,33 @@ BindingNotFoundError: No binding found for token 'DatabaseService'
 ### Tasks:
 
 1. **Design Async Interface** (Day 1)
-   - Define `resolveAsync()` signature
-   - Design async factory type
-   - Document error handling approach
+    - Define `resolveAsync()` signature
+    - Design async factory type
+    - Document error handling approach
 
 2. **Implement Core Logic** (Day 1-2)
-   - Add async resolution to DependencyContainer
-   - Handle mixed sync/async dependency chains
-   - Add proper Promise caching for Singletons
+    - Add async resolution to DependencyContainer
+    - Handle mixed sync/async dependency chains
+    - Add proper Promise caching for Singletons
 
 3. **Update Binding System** (Day 2)
-   - Support `Factory<T> | AsyncFactory<T>` in Binding
-   - Update BindingBuilder with `toAsyncFactory()`
-   - Validate at build time (no mixing sync/async in same chain if needed)
+    - Support `Factory<T> | AsyncFactory<T>` in Binding
+    - Update BindingBuilder with `toAsyncFactory()`
+    - Validate at build time (no mixing sync/async in same chain if needed)
 
 4. **Test Coverage** (Day 3)
-   - Unit tests for async resolution
-   - Tests for async singleton caching
-   - Tests for error handling in async chains
-   - Integration test with real async service (e.g., database)
+    - Unit tests for async resolution
+    - Tests for async singleton caching
+    - Tests for error handling in async chains
+    - Integration test with real async service (e.g., database)
 
 5. **Documentation** (Day 3)
-   - Update README with async examples
-   - Add async section to API docs
-   - Create async migration guide
+    - Update README with async examples
+    - Add async section to API docs
+    - Create async migration guide
 
 ### Deliverables:
+
 - [ ] Working `resolveAsync()` implementation
 - [ ] Async factory binding support
 - [ ] Test coverage >90% for new code
@@ -328,18 +353,18 @@ BindingNotFoundError: No binding found for token 'DatabaseService'
 ### Design Decisions:
 
 1. **Explicit vs Implicit Async:**
-   - Decision: Keep `resolve()` sync, add `resolveAsync()` for async
-   - Rationale: Avoids unexpected Promise returns in sync code
-   - Trade-off: Slightly more verbose API
+    - Decision: Keep `resolve()` sync, add `resolveAsync()` for async
+    - Rationale: Avoids unexpected Promise returns in sync code
+    - Trade-off: Slightly more verbose API
 
 2. **Decorator Support Priority:**
-   - Decision: Phase 2, after core features stable
-   - Rationale: Current factory-based API is explicit and testable
-   - Decorators add magic that can hide complexity
+    - Decision: Phase 2, after core features stable
+    - Rationale: Current factory-based API is explicit and testable
+    - Decorators add magic that can hide complexity
 
 3. **Circular Dependency Strategy:**
-   - Decision: Throw error, don't try to auto-resolve
-   - Rationale: Circular deps are design smells; explicit errors force fixes
+    - Decision: Throw error, don't try to auto-resolve
+    - Rationale: Circular deps are design smells; explicit errors force fixes
 
 ### Technical Debt:
 
@@ -358,4 +383,4 @@ BindingNotFoundError: No binding found for token 'DatabaseService'
 
 ---
 
-*This plan is a living document. Update as priorities shift and work is completed.*
+_This plan is a living document. Update as priorities shift and work is completed._

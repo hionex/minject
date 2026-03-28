@@ -1,8 +1,8 @@
-import { Binding } from "../binding/Binding.js";
-import { BindingBuilder } from "../binding/BindingBuilder.js";
-import { IDependencyContainer } from "./IDependencyContainer.js";
-import { DependencyRootedContainer } from "./DependencyRootedContainer.js";
-import { Token } from "../binding/Binding.js";
+import { Binding } from '../binding/Binding.js';
+import { BindingBuilder } from '../binding/BindingBuilder.js';
+import { IDependencyContainer } from './IDependencyContainer.js';
+import { DependencyRootedContainer } from './DependencyRootedContainer.js';
+import { Token } from '../binding/Binding.js';
 
 export type RegisterAction<T> = (builder: BindingBuilder<T>) => void;
 

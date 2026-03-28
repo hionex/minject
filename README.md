@@ -11,30 +11,28 @@
 
 ```typescript
 class Logger {
-  log(message: string) {
-    console.log(message);
-  }
+    log(message: string) {
+        console.log(message);
+    }
 }
 
 class App {
-  constructor(private logger: Logger) {}
-  run() {
-    this.logger.log("Hello from minject!");
-  }
+    constructor(private logger: Logger) {}
+    run() {
+        this.logger.log('Hello from minject!');
+    }
 }
 ```
 
 ### 2. Configure the container
 
 ```typescript
-import { ContainerBuilder } from "minject";
+import { ContainerBuilder } from 'minject';
 
 const builder = new ContainerBuilder();
 
-builder.register((b) => b.bind(Logger).to(Logger).asSingleton());
-builder.register((b) =>
-  b.bind(App).toFactory((c) => new App(c.resolve(Logger))),
-);
+builder.register(b => b.bind(Logger).to(Logger).asSingleton());
+builder.register(b => b.bind(App).toFactory(c => new App(c.resolve(Logger))));
 
 const container = builder.build();
 const app = container.resolve(App);
@@ -45,9 +43,9 @@ app.run();
 
 - **Fluent DSL**: Intuitive API for binding implementations and factories.
 - **Lifecycle Management**:
-  - `Singleton`: One instance per root container.
-  - `Scoped`: One instance per scope/depth.
-  - `Transient`: New instance for every resolution.
+    - `Singleton`: One instance per root container.
+    - `Scoped`: One instance per scope/depth.
+    - `Transient`: New instance for every resolution.
 - **Hierarchical Scopes**: Create child containers to manage sub-lifecycles (e.g., per-request scopes in Express).
 - **Zero Decorators (for now)**: Manual constructor injection via factories ensures full control and zero "magic."
 

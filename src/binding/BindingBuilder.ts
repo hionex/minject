@@ -1,5 +1,5 @@
-import { Binding, Class, Factory, Token } from "./Binding.js";
-import { Lifetime } from "./Lifetime.js";
+import { Binding, Class, Factory, Token } from './Binding.js';
+import { Lifetime } from './Lifetime.js';
 
 export class BindingBuilder<T> {
     private _key!: Token<T>;
@@ -35,23 +35,18 @@ export class BindingBuilder<T> {
     public build(): Binding<T> {
         this._validate();
 
-        return new Binding(
-            this._key,
-            this._lifetime,
-            this._implementation,
-            this._factory,
-        );
+        return new Binding(this._key, this._lifetime, this._implementation, this._factory);
     }
 
     private _validate(): void {
         if (!this._key) {
-            throw new Error("Key is not set.");
+            throw new Error('Key is not set.');
         }
         if (!this._lifetime) {
-            throw new Error("Lifetime is not set.");
+            throw new Error('Lifetime is not set.');
         }
         if (!this._implementation && !this._factory) {
-            throw new Error("Implementation or factory is not set.");
+            throw new Error('Implementation or factory is not set.');
         }
     }
 }

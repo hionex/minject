@@ -1,5 +1,5 @@
-import { IDependencyContainer } from "../container/IDependencyContainer.js";
-import { Lifetime } from "./Lifetime.js";
+import { IDependencyContainer } from '../container/IDependencyContainer.js';
+import { Lifetime } from './Lifetime.js';
 
 export type Token<T = any> = string | symbol | Class<T>;
 
@@ -12,6 +12,6 @@ export class Binding<T> {
         readonly key: Token<T>,
         readonly lifetime: Lifetime,
         readonly implementation: Class<T> | null = null,
-        readonly factory: Factory<T> | null = null,
+        readonly factory: Factory<T> | null = null
     ) {}
 }
