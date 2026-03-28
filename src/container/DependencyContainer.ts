@@ -47,8 +47,9 @@ export abstract class DependencyContainer implements IDependencyContainer {
     }
 
     protected resolveScoped<T>(key: Token<T>, binding: Binding<T>): T {
-        // Only cache Scoped lifetimes, not Transient
-        if (binding.lifetime !== Lifetime.Scoped) {
+        // Cache Scoped and Singleton lifetimes at this scope level
+        // Transient bypasses caching (handled by resolveTransient)
+        if (binding.lifetime === Lifetime.Transient) {
             return this._createInstance(binding);
         }
 

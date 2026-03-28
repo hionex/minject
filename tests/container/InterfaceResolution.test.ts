@@ -125,10 +125,6 @@ describe("Interface Resolution", () => {
             b.bind(IConfigToken).to(InMemoryConfig).asSingleton()
         );
 
-        // Configure config
-        const config = builder.build().resolve(IConfigToken) as IConfig;
-        config.set("env", "production");
-
         // Register service with interface dependencies
         builder.register((b) =>
             b
@@ -142,6 +138,11 @@ describe("Interface Resolution", () => {
         );
 
         const container = builder.build();
+
+        // Configure config on the built container
+        const config = container.resolve(IConfigToken) as IConfig;
+        config.set("env", "production");
+
         const userService = container.resolve(UserService);
 
         // Service works with any ILogger/IConfig implementation
