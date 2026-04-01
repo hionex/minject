@@ -1,17 +1,16 @@
-import { Lifetime } from '@/binding/Lifetime.js';
-import { IDependencyContainer } from '@/container/IDependencyContainer.js';
+import { Factory } from '@/factory/Factory.js';
+import { Token } from '@/token/Token.js';
 
-export type Token<T = any> = string | symbol | Class<T>;
+export enum Lifetime {
+    Singleton = 'singleton',
+    Transient = 'transient',
+    Scoped = 'scoped',
+}
 
-export type Class<T = any> = new (...args: any[]) => T;
-
-export type Factory<T> = (container: IDependencyContainer) => T;
-
-export class Binding<T> {
+export class Binding<T, K> {
     constructor(
-        readonly key: Token<T>,
-        readonly lifetime: Lifetime,
-        readonly implementation: Class<T> | null = null,
-        readonly factory: Factory<T> | null = null
+        public readonly key: Token<T>,
+        public readonly lifetime: Lifetime,
+        public readonly factory: Factory<T, K>
     ) {}
 }

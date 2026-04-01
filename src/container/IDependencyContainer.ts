@@ -1,8 +1,18 @@
-import { Token } from '@/binding/Binding.js';
-import { IAutoCloseable } from '@/container/IAutoCloseable.js';
+import { Key } from '@/token/Token.js';
 
-export interface IDependencyContainer extends IAutoCloseable {
-    resolve<T>(key: Token<T>): T;
-    resolveFactory<T>(key: Token<T>): () => T;
+export interface IDependencyContainer {
+    resolve<T>(key: Key<T>): Promise<T>;
+    resolveAll<T>(key: Key<T>): Promise<T[]>;
+
+    // Scope
     createScope(): IDependencyContainer;
+
+    // Lifecycle
+    dispose(): Promise<void>;
+    // freeze(): void;
+
+    // Inspection
+    // getBindings(): BindingInfo[];
+    // getStatistics(): ContainerStats;
+    // visualize(): string;
 }

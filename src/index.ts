@@ -1,39 +1,8 @@
-import { ContainerBuilder } from './container/ContainerBuilder.js';
-
-class ServiceA {
-    constructor(private serviceB: ServiceB) {}
-    execute() {
-        this.serviceB.hello();
-    }
-}
-
-class ServiceB {
-    constructor() {}
-    hello() {
-        console.log('Hello World!');
-    }
-}
-
-function main() {
-    const builder = new ContainerBuilder();
-
-    builder
-        .register(builder => {
-            builder.bind(ServiceB).to(ServiceB).asSingleton();
-        })
-        .register(builder => {
-            builder
-                .bind(ServiceA)
-                .toFactory(container => new ServiceA(container.resolve<ServiceB>(ServiceB)))
-                .asTransient();
-        });
-
-    const container = builder.build();
-    const serviceB = container.resolve<ServiceB>(ServiceB);
-    serviceB.hello();
-
-    const serviceA = container.resolve<ServiceA>(ServiceA);
-    serviceA.execute();
-}
-
-main();
+export * from './binding/Binding.js';
+export * from './container/ContainerBuilder.js';
+export * from './container/DependencyContainer.js';
+export * from './container/IDependencyContainer.js';
+export * from './graph/CircularDetector.js';
+export * from './graph/DependencyGraph.js';
+export * from './module/IModule.js';
+export * from './token/Token.js';

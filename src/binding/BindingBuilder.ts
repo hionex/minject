@@ -1,52 +1,65 @@
-import { Binding, Class, Factory, Token } from '@/binding/Binding.js';
-import { Lifetime } from '@/binding/Lifetime.js';
+import { ImplementationMismatchError } from '@/errors/ImplementationMismatchError.js';
+import { KeyMismatchError } from '@/errors/KeyMismatchError.js';
+import { LifetimeMismatchError } from '@/errors/LifetimeMismatchError.js';
+import { Factory } from '@/factory/Factory.js';
+import { Constructor, Key, Token } from '@/token/Token.js';
+import { Binding, Lifetime } from './Binding.js';
 
-export class BindingBuilder<T> {
+export class BindingBuilder<T, K> {
     private _key!: Token<T>;
     private _lifetime!: Lifetime;
-    private _implementation!: Class<T> | null;
-    private _factory!: Factory<T> | null;
+    private _factory!: Factory<T, K>;
 
-    public bind(key: Token<T>): BindingBuilder<T> {
-        this._key = key;
+    public bind(key: Key<T>): BindingBuilder<T, K> {
+        if (key instanceof Token) {
+            this._key = key;
+        } else if (typeof key === 'function') {
+            this._key = Token.fromClass(key);
+        } else {
+            this._key = Token.for(key as string);
+        }
         return this;
     }
-    public to(implementation: Class<T>): BindingBuilder<T> {
-        this._implementation = implementation;
+    public toValue(value: T): BindingBuilder<T, K> {
+        this._factory = Factory.sync(() => value);
         return this;
     }
-    public toFactory(factory: Factory<T>): BindingBuilder<T> {
-        this._factory = factory;
+    public toClass(ctor: Constructor<T>): BindingBuilder<T, K> {
+        this._factory = Factory.sync((container: K) => new ctor(container));
         return this;
     }
-    public asSingleton(): BindingBuilder<T> {
+    public toFactory(factory: (container: K) => T | Promise<T>): BindingBuilder<T, K> {
+        this._factory = Factory.from(factory);
+        return this;
+    }
+    public asSingleton(): BindingBuilder<T, K> {
         this._lifetime = Lifetime.Singleton;
         return this;
     }
-    public asTransient(): BindingBuilder<T> {
+    public asTransient(): BindingBuilder<T, K> {
         this._lifetime = Lifetime.Transient;
         return this;
     }
-    public asScoped(): BindingBuilder<T> {
+    public asScoped(): BindingBuilder<T, K> {
         this._lifetime = Lifetime.Scoped;
         return this;
     }
 
-    public build(): Binding<T> {
+    public build(): Binding<T, K> {
         this._validate();
 
-        return new Binding(this._key, this._lifetime, this._implementation, this._factory);
+        return new Binding(this._key, this._lifetime, this._factory);
     }
 
     private _validate(): void {
         if (!this._key) {
-            throw new Error('Key is not set.');
+            throw new KeyMismatchError('Key is not set.');
         }
         if (!this._lifetime) {
-            throw new Error('Lifetime is not set.');
+            throw new LifetimeMismatchError('Lifetime is not set.');
         }
-        if (!this._implementation && !this._factory) {
-            throw new Error('Implementation or factory is not set.');
+        if (!this._factory) {
+            throw new ImplementationMismatchError('Implementation or factory is not set.');
         }
     }
 }
