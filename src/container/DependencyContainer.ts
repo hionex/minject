@@ -2,11 +2,22 @@ import { Binding, Lifetime } from '@/binding/Binding.js';
 import { IBindingRegistry } from '@/binding/IBindingRegistry.js';
 import { IDependencyContainer } from '@/container/IDependencyContainer.js';
 import { BindingNotFoundError } from '@/errors/BindingNotFoundError.js';
+import { FrozenContainerError } from '@/errors/FrozenContainerError.js';
+import { ImplementationNotFoundError } from '@/errors/ImplementationNotFoundError.js';
+import { UnknownLifetimeError } from '@/errors/UnknowLifetimeError.js';
+import { IDisposable } from '@/lifecycle/IDisposable.js';
 import { Key, Token, TokenIdentifier } from '@/token/Token.js';
+
+function isDisposable(instance: any): instance is IDisposable {
+    return instance && typeof instance.dispose === 'function';
+}
 
 export class DependencyContainer implements IDependencyContainer {
     private readonly _singletons: Map<TokenIdentifier, unknown>;
     private readonly _scoped: Map<TokenIdentifier, unknown>;
+    private readonly _disposables: IDisposable[] = [];
+    private readonly _childScopes: Set<IDependencyContainer> = new Set();
+    private _isFrozen: boolean = false;
 
     constructor(
         protected registry: IBindingRegistry<IDependencyContainer>,
@@ -32,20 +43,55 @@ export class DependencyContainer implements IDependencyContainer {
             case Lifetime.Scoped:
                 return this._resolveScoped(binding);
             default:
-                throw new Error(`Unknown lifetime: ${binding.lifetime}`);
+                throw new UnknownLifetimeError(binding.lifetime);
         }
     }
 
-    resolveAll<T>(key: Key<T>): Promise<T[]> {
-        throw new Error('Method not implemented.');
+    async resolveAll<T>(key: Key<T>): Promise<T[]> {
+        const token = this._convertToken(key);
+        const bindings = this.registry.resolveAll(token);
+
+        return Promise.all(
+            bindings.map(binding => {
+                switch (binding.lifetime) {
+                    case Lifetime.Singleton:
+                        return this._resolveSingleton(binding);
+                    case Lifetime.Transient:
+                        return this._resolveTransient(binding);
+                    case Lifetime.Scoped:
+                        return this._resolveScoped(binding);
+                    default:
+                        throw new UnknownLifetimeError(binding.lifetime);
+                }
+            })
+        );
     }
 
     createScope(): IDependencyContainer {
-        return new DependencyContainer(this.registry, this.getRoot());
+        const scope = new DependencyContainer(this.registry, this.getRoot());
+        this._childScopes.add(scope);
+        return scope;
     }
 
-    dispose(): Promise<void> {
-        throw new Error('Method not implemented.');
+    async dispose(): Promise<void> {
+        // Dispose child scopes first
+        await Promise.all(Array.from(this._childScopes).map(scope => scope.dispose()));
+        this._childScopes.clear();
+
+        // Dispose instances in LIFO order
+        const disposables = [...this._disposables].reverse();
+        for (const disposable of disposables) {
+            await disposable.dispose();
+        }
+        this._disposables.length = 0;
+
+        // Clear instance caches
+        this._singletons.clear();
+        this._scoped.clear();
+    }
+
+    freeze(): void {
+        this._isFrozen = true;
     }
 
     protected getRoot(): DependencyContainer {
@@ -66,11 +112,17 @@ export class DependencyContainer implements IDependencyContainer {
     }
 
     private async _resolveInstance<T>(binding: Binding<T, IDependencyContainer>): Promise<T> {
-        if (binding.factory) {
-            return binding.factory.create(this);
+        if (!binding.factory) {
+            throw new ImplementationNotFoundError();
         }
 
-        throw new Error(`No factory found for key: ${String(binding.key.identifier)}`);
+        const instance = await binding.factory.create(this);
+
+        if (isDisposable(instance)) {
+            this._disposables.push(instance);
+        }
+
+        return instance;
     }
 
     private async _resolveSingleton<T>(binding: Binding<T, IDependencyContainer>): Promise<T> {
@@ -80,12 +132,19 @@ export class DependencyContainer implements IDependencyContainer {
             return instance as T;
         }
 
+        if (parent._isFrozen) {
+            throw new FrozenContainerError();
+        }
+
         const resolved = await this._resolveInstance(binding);
         parent._singletons.set(binding.key.identifier, resolved);
         return resolved;
     }
 
     private async _resolveTransient<T>(binding: Binding<T, IDependencyContainer>): Promise<T> {
+        if (this._isFrozen) {
+            throw new FrozenContainerError();
+        }
         const resolved = await this._resolveInstance(binding);
         return resolved;
     }
@@ -94,6 +153,10 @@ export class DependencyContainer implements IDependencyContainer {
         const instance = this._scoped.get(binding.key.identifier);
         if (instance) {
             return instance as T;
+        }
+
+        if (this._isFrozen) {
+            throw new FrozenContainerError();
         }
 
         const resolved = await this._resolveInstance(binding);

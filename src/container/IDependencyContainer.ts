@@ -9,7 +9,7 @@ export interface IDependencyContainer {
 
     // Lifecycle
     dispose(): Promise<void>;
-    // freeze(): void;
+    freeze(): void;
 
     // Inspection
     // getBindings(): BindingInfo[];

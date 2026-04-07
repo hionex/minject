@@ -13,16 +13,16 @@ export class Token<T> {
         this.identifier = Symbol(description);
     }
 
+    private static classCache = new WeakMap<Function, Token<unknown>>();
+
     static for<T>(description: string): Token<T> {
         return new Token<T>(description);
     }
 
-    private static cache = new WeakMap<Function, Token<unknown>>();
-
     static fromClass<T>(ctor: Constructor<T>): Token<T> {
-        if (!Token.cache.has(ctor)) {
-            Token.cache.set(ctor, new Token<T>(ctor.name));
+        if (!Token.classCache.has(ctor)) {
+            Token.classCache.set(ctor, new Token<T>(ctor.name));
         }
-        return Token.cache.get(ctor) as Token<T>;
+        return Token.classCache.get(ctor) as Token<T>;
     }
 }

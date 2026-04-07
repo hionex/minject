@@ -8,7 +8,7 @@
     "scripts": {
         "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
         "dev": "tsc -p tsconfig.dev.json && tsc-alias -p tsconfig.dev.json",
-        "test": "vitest",
+        "test": "vitest --coverage",
         "format": "prettier --write ."
     },
     "keywords": [
@@ -25,6 +25,7 @@
     },
     "devDependencies": {
         "@types/node": "^20.11.0",
+        "@vitest/coverage-v8": "^1.6.1",
         "prettier": "^3.8.1",
         "ts-node": "^10.9.2",
         "tsc-alias": "^1.8.16",

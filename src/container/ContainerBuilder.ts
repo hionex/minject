@@ -1,17 +1,21 @@
-import { BindingBuilder } from '@/binding/BindingBuilder.js';
-import { BindingRegistry } from '@/binding/BindingRegistry.js';
 import { DependencyContainer } from './DependencyContainer.js';
 import { IDependencyContainer } from './IDependencyContainer.js';
+import { IBindingRegistry } from '@/binding/IBindingRegistry.js';
+import { IBindingBuilder } from '@/binding/IBindingBuilder.js';
+import { BindingRegistry } from '@/binding/BindingRegistry.js';
+import { BindingBuilder } from '@/binding/BindingBuilder.js';
 
-export type RegisterAction<T, K> = (builder: BindingBuilder<T, K>) => void;
+export type RegisterAction<T, K> = (builder: IBindingBuilder<T, K>) => void;
 
 export class ContainerBuilder {
-    private readonly _registry: BindingRegistry<IDependencyContainer> =
-        new BindingRegistry<IDependencyContainer>();
+    private readonly _registry: IBindingRegistry<IDependencyContainer>;
+
+    constructor(registry?: IBindingRegistry<IDependencyContainer>) {
+        this._registry = registry ?? new BindingRegistry<IDependencyContainer>();
+    }
 
     public register<T>(action: RegisterAction<T, IDependencyContainer>): ContainerBuilder {
         const builder = new BindingBuilder<T, IDependencyContainer>();
-
         action(builder);
 
         this._registry.register(builder.build());

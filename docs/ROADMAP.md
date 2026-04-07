@@ -12,50 +12,50 @@
 ## Table of Contents
 
 - [minject — Full Development Roadmap](#minject--full-development-roadmap)
-  - [Table of Contents](#table-of-contents)
-  - [1. Design Philosophy](#1-design-philosophy)
-  - [2. Architecture Overview](#2-architecture-overview)
-  - [3. Feature Set](#3-feature-set)
-    - [3.1 Container Hierarchy \& Scopes](#31-container-hierarchy--scopes)
-    - [3.2 Binding System \& Fluent DSL](#32-binding-system--fluent-dsl)
-    - [3.3 Async Resolution](#33-async-resolution)
-      - [Two-phase init](#two-phase-init)
-      - [API](#api)
-      - [Promise cache for singletons](#promise-cache-for-singletons)
-      - [Mixed sync/async chains](#mixed-syncasync-chains)
-      - [Async error propagation](#async-error-propagation)
-    - [3.4 Circular Dependency Detection](#34-circular-dependency-detection)
-    - [3.5 Multiple Service Registration](#35-multiple-service-registration)
-    - [3.6 Type-Safe Tokens](#36-type-safe-tokens)
-    - [3.7 Decorator-Based Injection (Optional Layer)](#37-decorator-based-injection-optional-layer)
-      - [@Injectable](#injectable)
-      - [@Inject / @InjectOptional](#inject--injectoptional)
-      - [Auto-registration](#auto-registration)
-    - [3.8 Module System](#38-module-system)
-    - [3.9 Container Lifecycle \& Dispose](#39-container-lifecycle--dispose)
-    - [3.10 Developer Experience](#310-developer-experience)
-      - [Error messages with resolution path](#error-messages-with-resolution-path)
-      - [Container inspection](#container-inspection)
-      - [Build-time validation](#build-time-validation)
-    - [3.11 Performance Optimisations](#311-performance-optimisations)
-    - [3.12 Security Hardening](#312-security-hardening)
-  - [4. Public API Reference](#4-public-api-reference)
-    - [`Token<T>`](#tokent)
-    - [`ContainerBuilder`](#containerbuilder)
-    - [`IDependencyContainer`](#idependencycontainer)
-    - [`BindingBuilder`](#bindingbuilder)
-    - [`IModule`](#imodule)
-    - [`IDisposable` / `IAsyncDisposable`](#idisposable--iasyncdisposable)
-  - [5. Directory Structure (target)](#5-directory-structure-target)
-  - [6. Design Decisions \& ADRs](#6-design-decisions--adrs)
-    - [ADR-01 — Explicit async: `resolve()` stays synchronous](#adr-01--explicit-async-resolve-stays-synchronous)
-    - [ADR-02 — Typed `Token<T>` over `reflect-metadata` in core](#adr-02--typed-tokent-over-reflect-metadata-in-core)
-    - [ADR-03 — Build-time lock: container is immutable after `build()`](#adr-03--build-time-lock-container-is-immutable-after-build)
-    - [ADR-04 — Circular dependency: throw, never auto-resolve](#adr-04--circular-dependency-throw-never-auto-resolve)
-    - [ADR-05 — Promise cache (not value cache) for async singletons](#adr-05--promise-cache-not-value-cache-for-async-singletons)
-    - [ADR-06 — Decorator layer is optional, never required](#adr-06--decorator-layer-is-optional-never-required)
-  - [7. Release Plan](#7-release-plan)
-    - [Permanently out of scope](#permanently-out-of-scope)
+    - [Table of Contents](#table-of-contents)
+    - [1. Design Philosophy](#1-design-philosophy)
+    - [2. Architecture Overview](#2-architecture-overview)
+    - [3. Feature Set](#3-feature-set)
+        - [3.1 Container Hierarchy \& Scopes](#31-container-hierarchy--scopes)
+        - [3.2 Binding System \& Fluent DSL](#32-binding-system--fluent-dsl)
+        - [3.3 Async Resolution](#33-async-resolution)
+            - [Two-phase init](#two-phase-init)
+            - [API](#api)
+            - [Promise cache for singletons](#promise-cache-for-singletons)
+            - [Mixed sync/async chains](#mixed-syncasync-chains)
+            - [Async error propagation](#async-error-propagation)
+        - [3.4 Circular Dependency Detection](#34-circular-dependency-detection)
+        - [3.5 Multiple Service Registration](#35-multiple-service-registration)
+        - [3.6 Type-Safe Tokens](#36-type-safe-tokens)
+        - [3.7 Decorator-Based Injection (Optional Layer)](#37-decorator-based-injection-optional-layer)
+            - [@Injectable](#injectable)
+            - [@Inject / @InjectOptional](#inject--injectoptional)
+            - [Auto-registration](#auto-registration)
+        - [3.8 Module System](#38-module-system)
+        - [3.9 Container Lifecycle \& Dispose](#39-container-lifecycle--dispose)
+        - [3.10 Developer Experience](#310-developer-experience)
+            - [Error messages with resolution path](#error-messages-with-resolution-path)
+            - [Container inspection](#container-inspection)
+            - [Build-time validation](#build-time-validation)
+        - [3.11 Performance Optimisations](#311-performance-optimisations)
+        - [3.12 Security Hardening](#312-security-hardening)
+    - [4. Public API Reference](#4-public-api-reference)
+        - [`Token<T>`](#tokent)
+        - [`ContainerBuilder`](#containerbuilder)
+        - [`IDependencyContainer`](#idependencycontainer)
+        - [`BindingBuilder`](#bindingbuilder)
+        - [`IModule`](#imodule)
+        - [`IDisposable` / `IAsyncDisposable`](#idisposable--iasyncdisposable)
+    - [5. Directory Structure (target)](#5-directory-structure-target)
+    - [6. Design Decisions \& ADRs](#6-design-decisions--adrs)
+        - [ADR-01 — Explicit async: `resolve()` stays synchronous](#adr-01--explicit-async-resolve-stays-synchronous)
+        - [ADR-02 — Typed `Token<T>` over `reflect-metadata` in core](#adr-02--typed-tokent-over-reflect-metadata-in-core)
+        - [ADR-03 — Build-time lock: container is immutable after `build()`](#adr-03--build-time-lock-container-is-immutable-after-build)
+        - [ADR-04 — Circular dependency: throw, never auto-resolve](#adr-04--circular-dependency-throw-never-auto-resolve)
+        - [ADR-05 — Promise cache (not value cache) for async singletons](#adr-05--promise-cache-not-value-cache-for-async-singletons)
+        - [ADR-06 — Decorator layer is optional, never required](#adr-06--decorator-layer-is-optional-never-required)
+    - [7. Release Plan](#7-release-plan)
+        - [Permanently out of scope](#permanently-out-of-scope)
 
 ---
 
@@ -96,15 +96,15 @@ ContainerBuilder
 
 Key internal components:
 
-| Component             | Responsibility                                                   |
-| --------------------- | ---------------------------------------------------------------- |
-| `ContainerBuilder`    | Accumulate bindings, run `build()`, validate graph               |
-| `BindingRegistry`     | Map from `Token` to `Binding[]` — supports multi-binding         |
-| `Binding`             | Holds factory, lifetime                                          |
+| Component             | Responsibility                                                           |
+| --------------------- | ------------------------------------------------------------------------ |
+| `ContainerBuilder`    | Accumulate bindings, run `build()`, validate graph                       |
+| `BindingRegistry`     | Map from `Token` to `Binding[]` — supports multi-binding                 |
+| `Binding`             | Holds factory, lifetime                                                  |
 | `DependencyContainer` | Main container — handles sync + async resolution, singleton/scoped cache |
-| `Token<T>`            | Phantom-typed identifier — `T` enables inferred resolution       |
-| `DependencyGraph`     | Pre-built at `build()` time, topo-sorted for fast resolution     |
-| `CircularDetector`    | DFS over graph during `build()`, throws with full chain on cycle |
+| `Token<T>`            | Phantom-typed identifier — `T` enables inferred resolution               |
+| `DependencyGraph`     | Pre-built at `build()` time, topo-sorted for fast resolution             |
+| `CircularDetector`    | DFS over graph during `build()`, throws with full chain on cycle         |
 
 ---
 
@@ -726,15 +726,15 @@ Keeping decorators optional ensures the library works in any TypeScript project.
 
 ## 7. Release Plan
 
-| Version    | Scope            | Key deliverables                                                     |
-| ---------- | ---------------- | -------------------------------------------------------------------- |
+| Version    | Scope            | Key deliverables                                                          |
+| ---------- | ---------------- | ------------------------------------------------------------------------- |
 | **v0.1.0** | Foundation       | Container hierarchy, fluent DSL, three lifetimes, ESM, Vitest (Completed) |
-| **v0.2.0** | Stability        | resolveFactory(), multi-binding support, circular detection |
-| **v1.0.0** | Core complete    | Async resolution (Completed), captive dep warnings |
-| **v1.1.0** | DX               | Module system, build-time validation, error resolution paths         |
-| **v1.2.0** | Lifecycle        | Async dispose, `IAsyncDisposable`, reverse-order teardown            |
-| **v1.3.0** | Performance      | Pre-built dep graph, topo-sort, `visualize()`, container inspection  |
-| **v2.0.0** | Full feature set | Optional decorator layer, auto-scan, production hardening, full docs |
+| **v0.2.0** | Stability        | resolveFactory(), multi-binding support, circular detection               |
+| **v1.0.0** | Core complete    | Async resolution (Completed), captive dep warnings                        |
+| **v1.1.0** | DX               | Module system, build-time validation, error resolution paths              |
+| **v1.2.0** | Lifecycle        | Async dispose, `IAsyncDisposable`, reverse-order teardown                 |
+| **v1.3.0** | Performance      | Pre-built dep graph, topo-sort, `visualize()`, container inspection       |
+| **v2.0.0** | Full feature set | Optional decorator layer, auto-scan, production hardening, full docs      |
 
 **v1.0.0** is the first version suitable for production use. The decorator layer,
 module system, and dispose lifecycle are explicitly post-1.0 to keep scope tight.
