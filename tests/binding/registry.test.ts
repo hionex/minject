@@ -1,6 +1,6 @@
 import { Binding, Lifetime } from '@/binding/Binding.js';
 import { BindingRegistry } from '@/binding/BindingRegistry.js';
-import { Factory } from '@/factory/Factory.js';
+import { FactoryBuilder } from '@/factory/Factory.js';
 import { Token } from '@/token/Token.js';
 import { describe, expect, it } from 'vitest';
 
@@ -11,7 +11,7 @@ describe('BindingRegistry', () => {
         const binding = new Binding(
             token,
             Lifetime.Singleton,
-            Factory.sync(() => 'value')
+            FactoryBuilder.sync(() => 'value')
         );
 
         registry.register(binding);
@@ -24,12 +24,12 @@ describe('BindingRegistry', () => {
         const binding1 = new Binding(
             token,
             Lifetime.Singleton,
-            Factory.sync(() => 'value1')
+            FactoryBuilder.sync(() => 'value1')
         );
         const binding2 = new Binding(
             token,
             Lifetime.Singleton,
-            Factory.sync(() => 'value2')
+            FactoryBuilder.sync(() => 'value2')
         );
 
         registry.register(binding1);
@@ -44,12 +44,12 @@ describe('BindingRegistry', () => {
         const binding1 = new Binding(
             token,
             Lifetime.Singleton,
-            Factory.sync(() => 'value1')
+            FactoryBuilder.sync(() => 'value1')
         );
         const binding2 = new Binding(
             token,
             Lifetime.Singleton,
-            Factory.sync(() => 'value2')
+            FactoryBuilder.sync(() => 'value2')
         );
 
         registry.register(binding1);

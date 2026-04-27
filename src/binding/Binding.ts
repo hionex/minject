@@ -14,4 +14,9 @@ export class Binding<T, K> {
         public readonly factory: Factory<T, K>,
         public readonly deps: Token<unknown>[] = []
     ) {}
+
+    get isAsync(): boolean {
+        return this.factory.isAsync;
+    }
 }
+

@@ -1,6 +1,11 @@
 import { Key } from '@/token/Token.js';
 
 export interface IDependencyContainer {
+    // Sync API — throws AsyncBindingError if binding is async
+    get<T>(key: Key<T>): T;
+    getAll<T>(key: Key<T>): T[];
+
+    // Async API — works for both sync and async bindings
     resolve<T>(key: Key<T>): Promise<T>;
     resolveAll<T>(key: Key<T>): Promise<T[]>;
 
@@ -16,3 +21,4 @@ export interface IDependencyContainer {
     // getStatistics(): ContainerStats;
     // visualize(): string;
 }
+

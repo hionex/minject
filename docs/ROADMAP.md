@@ -4,7 +4,7 @@
 > This document describes the complete architecture, design decisions, and feature set
 > of `minject` from its initial foundation to its production-ready v2.0.0 release.
 >
-> **Repository:** https://github.com/hiep20012003/minject  
+> **Repository:** <https://github.com/hiep20012003/minject>  
 > **Language:** TypeScript 5.3+ · Node.js ESM · Vitest
 
 ---
@@ -12,50 +12,50 @@
 ## Table of Contents
 
 - [minject — Full Development Roadmap](#minject--full-development-roadmap)
-    - [Table of Contents](#table-of-contents)
-    - [1. Design Philosophy](#1-design-philosophy)
-    - [2. Architecture Overview](#2-architecture-overview)
-    - [3. Feature Set](#3-feature-set)
-        - [3.1 Container Hierarchy \& Scopes](#31-container-hierarchy--scopes)
-        - [3.2 Binding System \& Fluent DSL](#32-binding-system--fluent-dsl)
-        - [3.3 Async Resolution](#33-async-resolution)
-            - [Two-phase init](#two-phase-init)
-            - [API](#api)
-            - [Promise cache for singletons](#promise-cache-for-singletons)
-            - [Mixed sync/async chains](#mixed-syncasync-chains)
-            - [Async error propagation](#async-error-propagation)
-        - [3.4 Circular Dependency Detection](#34-circular-dependency-detection)
-        - [3.5 Multiple Service Registration](#35-multiple-service-registration)
-        - [3.6 Type-Safe Tokens](#36-type-safe-tokens)
-        - [3.7 Decorator-Based Injection (Optional Layer)](#37-decorator-based-injection-optional-layer)
-            - [@Injectable](#injectable)
-            - [@Inject / @InjectOptional](#inject--injectoptional)
-            - [Auto-registration](#auto-registration)
-        - [3.8 Module System](#38-module-system)
-        - [3.9 Container Lifecycle \& Dispose](#39-container-lifecycle--dispose)
-        - [3.10 Developer Experience](#310-developer-experience)
-            - [Error messages with resolution path](#error-messages-with-resolution-path)
-            - [Container inspection](#container-inspection)
-            - [Build-time validation](#build-time-validation)
-        - [3.11 Performance Optimisations](#311-performance-optimisations)
-        - [3.12 Security Hardening](#312-security-hardening)
-    - [4. Public API Reference](#4-public-api-reference)
-        - [`Token<T>`](#tokent)
-        - [`ContainerBuilder`](#containerbuilder)
-        - [`IDependencyContainer`](#idependencycontainer)
-        - [`BindingBuilder`](#bindingbuilder)
-        - [`IModule`](#imodule)
-        - [`IDisposable` / `IAsyncDisposable`](#idisposable--iasyncdisposable)
-    - [5. Directory Structure (target)](#5-directory-structure-target)
-    - [6. Design Decisions \& ADRs](#6-design-decisions--adrs)
-        - [ADR-01 — Explicit async: `resolve()` stays synchronous](#adr-01--explicit-async-resolve-stays-synchronous)
-        - [ADR-02 — Typed `Token<T>` over `reflect-metadata` in core](#adr-02--typed-tokent-over-reflect-metadata-in-core)
-        - [ADR-03 — Build-time lock: container is immutable after `build()`](#adr-03--build-time-lock-container-is-immutable-after-build)
-        - [ADR-04 — Circular dependency: throw, never auto-resolve](#adr-04--circular-dependency-throw-never-auto-resolve)
-        - [ADR-05 — Promise cache (not value cache) for async singletons](#adr-05--promise-cache-not-value-cache-for-async-singletons)
-        - [ADR-06 — Decorator layer is optional, never required](#adr-06--decorator-layer-is-optional-never-required)
-    - [7. Release Plan](#7-release-plan)
-        - [Permanently out of scope](#permanently-out-of-scope)
+  - [Table of Contents](#table-of-contents)
+  - [1. Design Philosophy](#1-design-philosophy)
+  - [2. Architecture Overview](#2-architecture-overview)
+  - [3. Feature Set](#3-feature-set)
+    - [3.1 Container Hierarchy \& Scopes](#31-container-hierarchy--scopes)
+    - [3.2 Binding System \& Fluent DSL](#32-binding-system--fluent-dsl)
+    - [3.3 Async Resolution](#33-async-resolution)
+      - [Two-phase init](#two-phase-init)
+      - [API](#api)
+      - [Promise cache for singletons](#promise-cache-for-singletons)
+      - [Mixed sync/async chains](#mixed-syncasync-chains)
+      - [Async error propagation](#async-error-propagation)
+    - [3.4 Circular Dependency Detection](#34-circular-dependency-detection)
+    - [3.5 Multiple Service Registration](#35-multiple-service-registration)
+    - [3.6 Type-Safe Tokens](#36-type-safe-tokens)
+    - [3.7 Decorator-Based Injection (Optional Layer)](#37-decorator-based-injection-optional-layer)
+      - [@Injectable](#injectable)
+      - [@Inject / @InjectOptional](#inject--injectoptional)
+      - [Auto-registration](#auto-registration)
+    - [3.8 Module System](#38-module-system)
+    - [3.9 Container Lifecycle \& Dispose](#39-container-lifecycle--dispose)
+    - [3.10 Developer Experience](#310-developer-experience)
+      - [Error messages with resolution path](#error-messages-with-resolution-path)
+      - [Container inspection](#container-inspection)
+      - [Build-time validation](#build-time-validation)
+    - [3.11 Performance Optimisations](#311-performance-optimisations)
+    - [3.12 Security Hardening](#312-security-hardening)
+  - [4. Public API Reference](#4-public-api-reference)
+    - [`Token<T>`](#tokent)
+    - [`ContainerBuilder`](#containerbuilder)
+    - [`IDependencyContainer`](#idependencycontainer)
+    - [`BindingBuilder`](#bindingbuilder)
+    - [`IModule`](#imodule)
+    - [`IDisposable` / `IAsyncDisposable`](#idisposable--iasyncdisposable)
+  - [5. Directory Structure (target)](#5-directory-structure-target)
+  - [6. Design Decisions \& ADRs](#6-design-decisions--adrs)
+    - [ADR-01 — Async-first: `resolve()` is asynchronous](#adr-01--async-first-resolve-is-asynchronous)
+    - [ADR-02 — Typed `Token<T>` over `reflect-metadata` in core](#adr-02--typed-tokent-over-reflect-metadata-in-core)
+    - [ADR-03 — Build-time lock: container is immutable after `build()`](#adr-03--build-time-lock-container-is-immutable-after-build)
+    - [ADR-04 — Circular dependency: throw, never auto-resolve](#adr-04--circular-dependency-throw-never-auto-resolve)
+    - [ADR-05 — Promise cache (not value cache) for async singletons](#adr-05--promise-cache-not-value-cache-for-async-singletons)
+    - [ADR-06 — Decorator layer is optional, never required](#adr-06--decorator-layer-is-optional-never-required)
+  - [7. Release Plan](#7-release-plan)
+    - [Permanently out of scope](#permanently-out-of-scope)
 
 ---
 
@@ -63,10 +63,10 @@
 
 `minject` is built around four principles, in this order of priority:
 
-1. **Async-first** — Database connections, config loading, and secret fetching all happen at startup. Async factories and async resolution chains are first-class, not bolted on.
-2. **Full TypeScript type-safety without reflection hacks** — Typed tokens carry generic type information as a phantom type. `resolve(token)` infers the return type without `reflect-metadata` or `emitDecoratorMetadata` in the core.
-3. **Zero runtime overhead** — Dependency graphs are pre-built at `build()` time. Resolution at runtime is a Map lookup, not a traversal. Singleton cache stores Promises (not resolved values) to prevent duplicate factory runs.
-4. **Explicit over magic** — Factory-based injection is always available and is the primary path. Decorators are an optional ergonomic layer added in a later phase. The library never requires decorators to function.
+1. **Dual sync/async resolution** — Database connections, config loading, and secret fetching all happen at startup via `resolve()` (async). Pure sync dependencies use `get()` for zero-overhead resolution. Both paths are first-class citizens.
+2. **Full TypeScript type-safety without reflection hacks** — Typed tokens carry generic type information as a phantom type. `get(token)` / `resolve(token)` infer the return type without `reflect-metadata` or `emitDecoratorMetadata` in the core.
+3. **Zero runtime overhead** — Dependency graphs are pre-built at `build()` time. Sync resolution is a direct Map lookup. Async singleton cache stores Promises in a separate `_inflight` map (not resolved values) to prevent duplicate factory runs and race conditions.
+4. **Explicit over magic** — Factory-based injection is always available and is the primary path. `toAsyncFactory()` explicitly marks async bindings; `toFactory()` auto-detects at runtime. Decorators are an optional ergonomic layer added in a later phase. The library never requires decorators to function.
 
 Two constraints that never change regardless of features added:
 
@@ -80,17 +80,18 @@ Two constraints that never change regardless of features added:
 ```bash
 ContainerBuilder
   │
-  ├── register(b => b.bind(Token).toClass/toFactory/toValue)
+  ├── register(b => b.bind(Token).toClass/toFactory/toAsyncFactory/toValue)
   │
   └── build() ──► DependencyContainer (root or scope, immutable after build)
                       │
-                      ├── resolve<T>(token)            → Promise<T>
-                      ├── resolveAll<T>(token)           → Promise<T[]>
-                      ├── resolveFactory<T>(token)       → () => Promise<T> (lazy)
+                      ├── get<T>(token)                → T              (sync, throws on async)
+                      ├── getAll<T>(token)             → T[]            (sync, throws on async)
+                      ├── resolve<T>(token)            → Promise<T>     (async, works for all)
+                      ├── resolveAll<T>(token)         → Promise<T[]>   (async, works for all)
                       │
                       └── createScope() ──► DependencyContainer (scoped child)
                                               │
-                                              └── same resolve API
+                                              └── same dual API
                                                   scoped lifetime is local here
 ```
 
@@ -142,19 +143,31 @@ This is detected and warned at `build()` time.
 
 ### 3.2 Binding System & Fluent DSL
 
-The fluent `BindingBuilder` supports four binding styles:
+The fluent `BindingBuilder` supports five binding styles:
 
 ```typescript
 builder.register(b => {
     // 1. Class binding — container calls new Impl(container)
     b.bind(ILogger).toClass(ConsoleLogger).asSingleton();
 
-    // 2. Factory binding — full control, supports sync/async
+    // 2. Sync factory binding — full control
     b.bind(UserRepository)
-        .toFactory(async c => new UserRepository(await c.resolve(Database)))
+        .toFactory(c => new UserRepository(c.get(Database)))
         .asScoped();
 
-    // 3. Value binding — pre-constructed instance or primitive
+    // 3. Async factory binding — explicit async, enables resolve() only
+    b.bind(Database)
+        .toAsyncFactory(async c => {
+            const config = await c.resolve(Config);
+            return Database.connect(config.dbUrl);
+        })
+        .asSingleton();
+
+    // 4. Auto-detect factory — sync or async determined at runtime
+    b.bind(Cache)
+        .toFactory(c => maybeAsyncInit());
+
+    // 5. Value binding — pre-constructed instance or primitive
     b.bind(Config).toValue({ port: 3000, dbUrl: process.env.DB_URL });
 });
 ```
@@ -162,38 +175,50 @@ builder.register(b => {
 Lifetime is set via `.asSingleton()`, `.asScoped()`, or `.asTransient()`.
 `asTransient()` is the default when no lifetime method is called.
 
+| Method | `isAsync` | `get()` | `resolve()` |
+|--------|-----------|---------|-------------|
+| `toValue(v)` | `false` | ✅ | ✅ |
+| `toClass(C)` | `false` | ✅ | ✅ |
+| `toFactory(fn)` | `false`* | ✅* | ✅ |
+| `toAsyncFactory(fn)` | `true` | ❌ throws | ✅ |
+
+\* If `toFactory` returns a `Promise` at runtime, `get()` will throw `AsyncBindingError` (auto-detection).
+
 ---
 
-### 3.3 Async Resolution
+### 3.3 Dual Sync/Async Resolution
 
-This is the most important feature in `minject`. Node.js startup routinely involves
-async operations — DB connects, secret fetches, config file reads — and the container
-must handle this without ceremony.
+This is the most important feature in `minject`. The container provides two resolution
+paths — sync and async — so that developers choose the right tool for the job.
 
-#### Two-phase init
-
-```bash
-Phase 1 — register (synchronous, instant)
-  All bindings are declared. No factories run yet.
-
-Phase 2 — build (asynchronous, runs once)
-  await container.buildAsync()
-  All async singleton factories run concurrently where possible.
-  Container is immutable after this point.
-```
-
-#### API
+#### Sync path — `get()`
 
 ```typescript
-// Async resolution is the default
-const db = await container.resolve(Database);
+// Sync resolution — returns T directly, no await needed
+const logger = container.get(LoggerToken);    // type: ILogger
+const items = container.getAll(HandlerToken); // type: IHandler[]
 
-// Async factory chain — async and sync deps can be mixed
+// Throws AsyncBindingError if the binding is async
+container.get(DatabaseToken); // ❌ AsyncBindingError: use resolve() instead
+```
+
+`get()` is a fail-fast API. If the binding was registered with `toAsyncFactory()`,
+or if a `toFactory()` returns a `Promise` at runtime, `get()` throws `AsyncBindingError`
+immediately — no hidden bugs.
+
+#### Async path — `resolve()`
+
+```typescript
+// Async resolution — works for ALL bindings (sync and async)
+const db = await container.resolve(Database);     // type: Database
+const all = await container.resolveAll(Handlers); // type: IHandler[]
+
+// Explicit async factory
 builder.register(b =>
     b
         .bind(UserService)
-        .toFactory(async c => {
-            const db = await c.resolve(Database); // await for deps
+        .toAsyncFactory(async c => {
+            const db = await c.resolve(Database);
             const cfg = await c.resolve(Config);
             return new UserService(db, cfg);
         })
@@ -201,41 +226,57 @@ builder.register(b =>
 );
 ```
 
-#### Promise cache for singletons
+#### Dual cache maps for race-condition safety
 
-For singleton async factories, the container caches the `Promise` itself — not the
-resolved value. If ten callers request the same singleton concurrently, all ten
-receive the same `Promise`. The factory runs exactly once.
+The container uses two separate cache maps for Singleton and Scoped lifetimes:
+
+- `_instances: Map<TokenIdentifier, unknown>` — stores resolved values
+- `_inflight: Map<TokenIdentifier, Promise<unknown>>` — stores in-flight Promises
+
+This prevents the classic race condition where concurrent callers trigger duplicate
+factory runs:
 
 ```typescript
 // Internal implementation pattern
-private asyncCache = new Map<Token<unknown>, Promise<unknown>>();
+private _instances = new Map<TokenIdentifier, unknown>();
+private _inflight = new Map<TokenIdentifier, Promise<unknown>>();
 
-async resolveAsync<T>(token: Token<T>): Promise<T> {
-  if (!this.asyncCache.has(token)) {
-    // Cache before awaiting — prevents concurrent duplicate factory runs
-    this.asyncCache.set(token, this.runFactory(token));
-  }
-  return this.asyncCache.get(token) as Promise<T>;
+resolveSingleton<T>(binding): Promise<T> {
+  // 1. Already resolved? Return cached instance
+  if (this._instances.has(key)) return Promise.resolve(cached);
+
+  // 2. In-flight? Return existing Promise (race condition protection!)
+  if (this._inflight.has(key)) return this._inflight.get(key);
+
+  // 3. Create and cache Promise IMMEDIATELY (before await)
+  const promise = this.runFactory(binding)
+    .then(instance => {
+      this._instances.set(key, instance);  // move to resolved cache
+      this._inflight.delete(key);          // remove from in-flight
+      return instance;
+    })
+    .catch(err => {
+      this._inflight.delete(key);          // allow retry on next call
+      throw err;
+    });
+
+  this._inflight.set(key, promise);
+  return promise;
 }
 ```
 
 #### Mixed sync/async chains
 
-The container validates at `build()` that a sync factory never depends on a token
-that only has an async factory. This forces the dependency chain to be explicit
-and prevents silent `Promise` objects from leaking into sync code.
+Sync bindings resolved via `get()` never touch the `_inflight` map — they are pure
+synchronous Map lookups. Async bindings registered with `toAsyncFactory()` are
+blocked from `get()` at the metadata level (fail-fast via `binding.isAsync`).
+`toFactory()` bindings that unexpectedly return a `Promise` are caught at runtime.
 
-#### Async error propagation
+#### Async error recovery
 
-Errors thrown inside an async factory are wrapped in `AsyncResolutionError`
-with the full resolution path:
-
-```bash
-AsyncResolutionError: Failed to resolve Database
-  Caused by: ECONNREFUSED 127.0.0.1:5432
-  Resolution path: AppController → UserService → Database
-```
+When an async singleton factory rejects, the `_inflight` entry is removed.
+Subsequent calls to `resolve()` will retry the factory — the container does not
+permanently cache a failed Promise.
 
 ---
 
@@ -522,7 +563,8 @@ resolved scoped service is a single Map hit — no factory re-invocation.
 ### `Token<T>`
 
 ```typescript
-const MY_TOKEN = new Token<MyService>('MyService');
+const MY_TOKEN = Token.for<MyService>('MyService');
+const CLASS_TOKEN = Token.fromClass(MyService);
 ```
 
 ### `ContainerBuilder`
@@ -531,34 +573,39 @@ const MY_TOKEN = new Token<MyService>('MyService');
 const builder = new ContainerBuilder();
 
 builder.register(b => { /* bind calls */ });
-builder.load(module: IModule): ContainerBuilder;
-builder.scan(path: string): ContainerBuilder;     // requires @Injectable
+builder.load(module: IModule): ContainerBuilder;  // future
+builder.scan(path: string): ContainerBuilder;     // future, requires @Injectable
 
-const container = builder.build();                // sync — no async factories allowed
-const container = await builder.buildAsync();     // supports async factories
+const container = builder.build();
 ```
 
 ### `IDependencyContainer`
 
 ```typescript
-resolve<T>(token: Token<T> | Constructor<T>): Promise<T>;
-resolveAll<T>(token: Token<T> | Constructor<T>): Promise<T[]>;
-resolveFactory<T>(token: Token<T> | Constructor<T>): () => Promise<T>;
+// Sync API — throws AsyncBindingError if binding is async
+get<T>(token: Key<T>): T;
+getAll<T>(token: Key<T>): T[];
+
+// Async API — works for both sync and async bindings
+resolve<T>(token: Key<T>): Promise<T>;
+resolveAll<T>(token: Key<T>): Promise<T[]>;
 
 // Scope
 createScope(): IDependencyContainer;
 
 // Lifecycle
 dispose(): Promise<void>;
+freeze(): void;
 ```
 
 ### `BindingBuilder`
 
 ```typescript
 b.bind(token)
-  .toClass(ImplementationClass)
-  .toFactory(c => new Impl(await c.resolve(...)))
-  .toValue(instance)
+  .toClass(ImplementationClass)               // sync
+  .toFactory(c => new Impl(c.get(...)))       // sync or auto-detect
+  .toAsyncFactory(async c => await init())    // explicit async
+  .toValue(instance)                          // sync
   // then one of:
   .asSingleton()
   .asScoped()
@@ -591,80 +638,84 @@ interface IAsyncDisposable {
 ```bash
 src/
 ├── binding/
-│   ├── Binding.ts              # DTO: factory | asyncFactory | value + lifetime
-│   ├── BindingBuilder.ts       # Fluent DSL
+│   ├── Binding.ts              # DTO: factory + lifetime + isAsync flag
+│   ├── BindingBuilder.ts       # Fluent DSL (toFactory/toAsyncFactory/toValue/toClass)
+│   ├── IBindingBuilder.ts      # Builder interface
 │   └── BindingRegistry.ts      # Map<Token, Binding[]> with multi-binding support
 │
 ├── container/
-│   ├── IDependencyContainer.ts # Public interface
-│   ├── DependencyContainer.ts  # Unified container — resolution + instance cache
+│   ├── IDependencyContainer.ts # Public interface (get/getAll/resolve/resolveAll)
+│   ├── DependencyContainer.ts  # Dual cache container — sync + async resolution
+│   ├── ScopedContainer.ts      # Scoped child container
 │   └── ContainerBuilder.ts     # Registration + build()
 │
 ├── factory/
-│   └── Factory.ts              # Unified factory (sync/async)
+│   └── Factory.ts              # Factory with isAsync metadata (sync/async/from)
 │
-├── decorators/                 # Optional — requires reflect-metadata
+├── decorators/                 # Future — optional, requires reflect-metadata
 │   ├── Injectable.ts
 │   ├── Inject.ts
 │   ├── InjectOptional.ts
 │   └── Scanner.ts
 │
 ├── errors/
+│   ├── AsyncBindingError.ts    # Thrown by get() on async bindings
 │   ├── BindingNotFoundError.ts
-│   ├── CircularDependencyError.ts
-│   ├── ImplementationMismatchError.ts
-│   ├── KeyMismatchError.ts
-│   └── LifetimeMismatchError.ts
+│   ├── BindingKeyNotFoundError.ts
+│   ├── FrozenContainerError.ts
+│   ├── ImplementationNotFoundError.ts
+│   └── UnknownLifetimeError.ts
 │
-├── graph/
+├── graph/                      # Future
 │   ├── DependencyGraph.ts      # Topo-sorted pre-built graph
 │   └── CircularDetector.ts     # DFS cycle detection
 │
 ├── lifecycle/
-│   ├── IDisposable.ts
-│   └── IAsyncDisposable.ts
+│   └── IDisposable.ts          # Sync and async dispose
 │
-├── module/
+├── module/                     # Future
 │   └── IModule.ts
 │
 ├── token/
-│   └── Token.ts                # Phantom-typed identifier
+│   └── Token.ts                # Phantom-typed identifier with caching
 │
 └── index.ts                    # Public exports
 
 tests/
 ├── container/
-│   ├── resolution.test.ts
-│   ├── async-resolution.test.ts
-│   ├── scoped-lifetime.test.ts
-│   ├── circular-detection.test.ts
-│   ├── multi-binding.test.ts
-│   └── dispose.test.ts
+│   ├── container.test.ts       # Core container tests
+│   ├── sync-resolution.test.ts # get()/getAll() sync path tests
+│   └── async-resolution.test.ts # resolve()/resolveAll() async path tests
 ├── binding/
-│   └── builder.test.ts
-├── decorators/
-│   └── injectable.test.ts
+│   ├── builder.test.ts
+│   └── registry.test.ts
+├── token/
+│   └── token.test.ts
 └── integration/
-    ├── express.test.ts
-    └── fastify.test.ts
+    ├── integration.test.ts
+    └── lifecycle.test.ts
 ```
 
 ---
 
 ## 6. Design Decisions & ADRs
 
-### ADR-01 — Async-first: `resolve()` is asynchronous
+### ADR-01 — Dual API: `get()` (sync) + `resolve()` (async)
 
-**Decision:** Make `resolve()` return a `Promise<T>` by default.
+**Decision:** Provide two resolution APIs — `get<T>(): T` for synchronous resolution
+and `resolve<T>(): Promise<T>` for asynchronous resolution.
 
-**Rationale:** Modern Node.js applications are heavily dependent on asynchronous
-operations (DB, Config, KMS). By making the container async-first, we eliminate
-the friction of mixing sync/async registries and "leaky promise" bugs. Every
-resolution behaves the same, whether it hit a cached singleton or triggered
-an async factory.
+**Rationale:** Modern Node.js applications need both: sync resolution for pure
+service composition (fast, no microtask overhead) and async resolution for DB
+connections, config loading, and secret fetching. A single async-only API forces
+unnecessary `await` on sync-only chains and prevents use in sync-only contexts.
 
-**Alternative rejected:** Maintain separate `resolve()` and `resolveAsync()`.
-Adds API surface and forces developers to constanty choose between them.
+**Alternative rejected:** Single `resolve()` always returning `Promise<T>`.
+Forces `await` on sync chains, creates unnecessary microtask overhead, and prevents
+use in synchronous lifecycle hooks of other frameworks.
+
+**Fail-fast guarantee:** `get()` throws `AsyncBindingError` immediately if a binding
+is registered with `toAsyncFactory()` or if `toFactory()` returns a Promise at runtime.
 
 ---
 
@@ -704,13 +755,16 @@ fix the design.
 
 ---
 
-### ADR-05 — Promise cache (not value cache) for async singletons
+### ADR-05 — Dual cache maps: `_instances` + `_inflight`
 
-**Decision:** The async singleton cache stores `Promise<T>`, not the resolved `T`.
+**Decision:** Use two separate maps — `_instances` for resolved values and `_inflight`
+for in-flight Promises — instead of a single map.
 
-**Rationale:** Caching the resolved value requires all concurrent callers to wait for the
-first to finish. Caching the `Promise` means all concurrent callers share the same
-`Promise` immediately — the factory runs once and all callers resolve together.
+**Rationale:** A single map storing either `T` or `Promise<T>` requires `isPromise()`
+checks on every cache read. Dual maps provide clean separation: `_instances` is a pure
+sync lookup for `get()`, and `_inflight` is only checked by `resolve()`. When an async
+factory completes, its value moves from `_inflight` to `_instances`, making it available
+to both APIs. Failed Promises are removed from `_inflight`, allowing retry.
 
 ---
 
@@ -728,16 +782,16 @@ Keeping decorators optional ensures the library works in any TypeScript project.
 
 | Version    | Scope            | Key deliverables                                                          |
 | ---------- | ---------------- | ------------------------------------------------------------------------- |
-| **v0.1.0** | Foundation       | Container hierarchy, fluent DSL, three lifetimes, ESM, Vitest (Completed) |
-| **v0.2.0** | Stability        | resolveFactory(), multi-binding support, circular detection               |
-| **v1.0.0** | Core complete    | Async resolution (Completed), captive dep warnings                        |
-| **v1.1.0** | DX               | Module system, build-time validation, error resolution paths              |
-| **v1.2.0** | Lifecycle        | Async dispose, `IAsyncDisposable`, reverse-order teardown                 |
-| **v1.3.0** | Performance      | Pre-built dep graph, topo-sort, `visualize()`, container inspection       |
+| **v0.1.0** | Foundation       | Container hierarchy, fluent DSL, three lifetimes, ESM, Vitest ✅          |
+| **v0.2.0** | Async + Sync     | Dual API (`get`/`resolve`), `toAsyncFactory`, race-condition safe cache ✅ |
+| **v0.3.0** | Stability        | Circular dependency detection, captive dep warnings                       |
+| **v1.0.0** | Core complete    | Module system, build-time validation, error resolution paths              |
+| **v1.1.0** | Lifecycle        | `IAsyncDisposable`, reverse-order teardown enhancements                   |
+| **v1.2.0** | Performance      | Pre-built dep graph, topo-sort, `visualize()`, container inspection       |
 | **v2.0.0** | Full feature set | Optional decorator layer, auto-scan, production hardening, full docs      |
 
-**v1.0.0** is the first version suitable for production use. The decorator layer,
-module system, and dispose lifecycle are explicitly post-1.0 to keep scope tight.
+**v1.0.0** is the first version suitable for production use. The decorator layer
+and advanced inspection APIs are explicitly post-1.0 to keep scope tight.
 
 ### Permanently out of scope
 

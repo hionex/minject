@@ -4,6 +4,7 @@ import { BindingNotFoundError } from '@/errors/BindingNotFoundError.js';
 import { FrozenContainerError } from '@/errors/FrozenContainerError.js';
 import { IDisposable } from '@/lifecycle/IDisposable.js';
 import { Token } from '@/token/Token.js';
+import { FactoryBuilder, SyncFactory, AsyncFactory } from '@/factory/Factory.js';
 import { describe, expect, it } from 'vitest';
 
 describe('DependencyContainer', () => {
@@ -18,11 +19,35 @@ describe('DependencyContainer', () => {
         expect(result).toBe('factory-value');
     });
 
-    it('should cover Factory.async explicitly', async () => {
-        const { Factory } = await import('@/factory/Factory.js');
-        const factory = Factory.async(async () => 'async-value');
+    it('should cover AsyncFactory explicitly', async () => {
+        const factory = FactoryBuilder.async(async () => 'async-value');
+        expect(factory).toBeInstanceOf(AsyncFactory);
+        expect(factory.isAsync).toBe(true);
         const result = await factory.create({} as any);
         expect(result).toBe('async-value');
+    });
+
+    it('should report isAsync correctly for all Factory types', () => {
+        const syncFactory = FactoryBuilder.sync(() => 'value');
+        expect(syncFactory).toBeInstanceOf(SyncFactory);
+        expect(syncFactory.isAsync).toBe(false);
+
+        const asyncFactory = FactoryBuilder.async(async () => 'value');
+        expect(asyncFactory).toBeInstanceOf(AsyncFactory);
+        expect(asyncFactory.isAsync).toBe(true);
+
+        const fromFactory = FactoryBuilder.from(() => 'value');
+        expect(fromFactory).toBeInstanceOf(SyncFactory);
+        expect(fromFactory.isAsync).toBe(false);
+    });
+
+    it('should handle toAsyncFactory in builder', () => {
+        const token = Token.for<string>('test');
+        const builder = new BindingBuilder<string, any>();
+        builder.bind(token).toAsyncFactory(async () => 'async-result');
+
+        const binding = builder.build();
+        expect(binding.isAsync).toBe(true);
     });
 
     it('should resolve a transient implementation', async () => {
@@ -230,7 +255,7 @@ describe('DependencyContainer', () => {
         const { BindingRegistry } = await import('@/binding/BindingRegistry.js');
         const { Binding, Lifetime } = await import('@/binding/Binding.js');
         const { Token } = await import('@/token/Token.js');
-        const { Factory } = await import('@/factory/Factory.js');
+        const { FactoryBuilder } = await import('@/factory/Factory.js');
         const { UnknownLifetimeError } = await import('@/errors/UnknowLifetimeError.js');
 
         const registry = new BindingRegistry<any>();
@@ -239,13 +264,17 @@ describe('DependencyContainer', () => {
         const binding = new Binding(
             token,
             'invalid' as any,
-            Factory.sync(() => 'value')
+            FactoryBuilder.sync(() => 'value')
         );
         registry.register(binding);
 
         const container = new DependencyContainer(registry);
+        // Async path
         await expect(container.resolve(token)).rejects.toThrow(UnknownLifetimeError);
         await expect(container.resolveAll(token)).rejects.toThrow(UnknownLifetimeError);
+        // Sync path
+        expect(() => container.get(token)).toThrow(UnknownLifetimeError);
+        expect(() => container.getAll(token)).toThrow(UnknownLifetimeError);
     });
 
     it('should use custom registry in ContainerBuilder', async () => {

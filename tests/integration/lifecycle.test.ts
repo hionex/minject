@@ -19,7 +19,7 @@ describe('Integration: Lifecycle (Async Init & Disposal)', () => {
         builder.register(b =>
             b
                 .bind(asyncToken)
-                .toFactory(async () => {
+                .toAsyncFactory(async () => {
                     const service = new AsyncService();
                     await service.init();
                     return service;
@@ -76,6 +76,43 @@ describe('Integration: Lifecycle (Async Init & Disposal)', () => {
         expect(logs).toEqual(['disposed s2', 'disposed s1']);
     });
 
+    it('should dispose sync-resolved services correctly', async () => {
+        const builder = new ContainerBuilder();
+        const logs: string[] = [];
+
+        class SyncService implements IDisposable {
+            constructor(public name: string) {}
+            dispose() {
+                logs.push(`disposed ${this.name}`);
+            }
+        }
+
+        const s1 = Token.for('sync-s1');
+        const s2 = Token.for('sync-s2');
+
+        builder.register(b =>
+            b
+                .bind(s1)
+                .toFactory(() => new SyncService('sync-s1'))
+                .asSingleton()
+        );
+        builder.register(b =>
+            b
+                .bind(s2)
+                .toFactory(() => new SyncService('sync-s2'))
+                .asSingleton()
+        );
+
+        const container = builder.build();
+
+        // Resolve via sync get()
+        container.get(s1);
+        container.get(s2);
+
+        await container.dispose();
+        expect(logs).toEqual(['disposed sync-s2', 'disposed sync-s1']);
+    });
+
     it('should handle complex async initialization with dependencies', async () => {
         const builder = new ContainerBuilder();
         const configToken = Token.for('config');
@@ -84,7 +121,7 @@ describe('Integration: Lifecycle (Async Init & Disposal)', () => {
         builder.register(b =>
             b
                 .bind(configToken)
-                .toFactory(async () => {
+                .toAsyncFactory(async () => {
                     await new Promise(resolve => setTimeout(resolve, 10));
                     return { dbUrl: 'localhost:5432' };
                 })
@@ -94,7 +131,7 @@ describe('Integration: Lifecycle (Async Init & Disposal)', () => {
         builder.register(b =>
             b
                 .bind(dbToken)
-                .toFactory(async c => {
+                .toAsyncFactory(async c => {
                     const config = await c.resolve<any>(configToken);
                     return { connected: true, url: config.dbUrl };
                 })
@@ -108,3 +145,4 @@ describe('Integration: Lifecycle (Async Init & Disposal)', () => {
         expect(db.url).toBe('localhost:5432');
     });
 });
+

@@ -6,6 +6,7 @@ export interface IBindingBuilder<T, K> {
     toValue(value: T): IBindingBuilder<T, K>;
     toClass(ctor: Constructor<T>): IBindingBuilder<T, K>;
     toFactory(factory: (container: K) => T | Promise<T>): IBindingBuilder<T, K>;
+    toAsyncFactory(factory: (container: K) => Promise<T>): IBindingBuilder<T, K>;
     dependsOn(keys: Key<unknown>[]): IBindingBuilder<T, K>;
     asSingleton(): IBindingBuilder<T, K>;
     asTransient(): IBindingBuilder<T, K>;

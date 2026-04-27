@@ -1,6 +1,6 @@
 import { BindingKeyNotFoundError } from '@/errors/BindingKeyNotFoundError.js';
 import { ImplementationNotFoundError } from '@/errors/ImplementationNotFoundError.js';
-import { Factory } from '@/factory/Factory.js';
+import { Factory, FactoryBuilder } from '@/factory/Factory.js';
 import { Constructor, Key, Token } from '@/token/Token.js';
 import { Binding, Lifetime } from './Binding.js';
 import { IBindingBuilder } from './IBindingBuilder.js';
@@ -23,17 +23,22 @@ export class BindingBuilder<T, K> implements IBindingBuilder<T, K> {
     }
 
     public toValue(value: T): IBindingBuilder<T, K> {
-        this._factory = Factory.sync(() => value);
+        this._factory = FactoryBuilder.sync(() => value);
         return this;
     }
 
     public toClass(ctor: Constructor<T>): IBindingBuilder<T, K> {
-        this._factory = Factory.sync((container: K) => new ctor(container));
+        this._factory = FactoryBuilder.sync((container: K) => new ctor(container));
         return this;
     }
 
     public toFactory(factory: (container: K) => T | Promise<T>): IBindingBuilder<T, K> {
-        this._factory = Factory.from(factory);
+        this._factory = FactoryBuilder.from(factory);
+        return this;
+    }
+
+    public toAsyncFactory(factory: (container: K) => Promise<T>): IBindingBuilder<T, K> {
+        this._factory = FactoryBuilder.async(factory);
         return this;
     }
 
